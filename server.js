@@ -120,3 +120,5 @@ setInterval(() => {
   }
   io.emit("state", Object.values(players));
 }, 1000 / 60);
+
+
