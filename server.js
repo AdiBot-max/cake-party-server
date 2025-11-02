@@ -1,17 +1,36 @@
 // server.js
 const express = require("express");
 const http = require("http");
+const cors = require("cors");
 const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+// ✅ CORS setup for both Express & Socket.io
+const allowedOrigins = [
+  "https://tranquil-capybara-ae8915.netlify.app", // your Netlify site
+  "http://localhost:3000"
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ["GET", "POST"]
+}));
+
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST"]
+  }
+});
 
 app.use(express.static("public"));
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("✅ Server running on port", PORT));
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 
+// ===== GAME LOGIC =====
 const gravity = 2000;
 const moveSpeed = 300;
 const jumpVel = -650;
@@ -31,6 +50,8 @@ function spawn() {
 }
 
 io.on("connection", socket => {
+  console.log("🎂 Cupcake joined:", socket.id);
+  
   const pos = spawn();
   players[socket.id] = {
     id: socket.id,
